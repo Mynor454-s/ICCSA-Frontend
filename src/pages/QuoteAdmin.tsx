@@ -1,4 +1,6 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
+import { useReactToPrint } from 'react-to-print';
+import PrintableQuote from '../components/PrintableQuote';
 import { createQuote, updateQuoteStatus, getQuoteById, getQuoteQRInfo, getAllQuotes } from "../api/quote.js";
 import { getClients } from "../api/clients.js";
 import { getProducts } from "../api/products.js";
@@ -231,6 +233,27 @@ export default function QuoteAdmin() {
       setMessage({ type: "danger", text: "Error cargando cotización" });
     }
   };
+
+  // ✅ Ref para el componente de impresión
+  const printRef = useRef<HTMLDivElement>(null);
+
+  // ✅ Función para imprimir - API actualizada
+  const handlePrint = useReactToPrint({
+    contentRef: printRef, // ✅ Cambiar de 'content' a 'contentRef'
+    documentTitle: `Orden_Pedido_${currentQuote?.id}`,
+    pageStyle: `
+      @page {
+        size: A4;
+        margin: 15mm;
+      }
+      @media print {
+        body { 
+          -webkit-print-color-adjust: exact; 
+          print-color-adjust: exact;
+        }
+      }
+    `
+  });
 
   useEffect(() => {
     loadReferenceData();
@@ -513,15 +536,23 @@ export default function QuoteAdmin() {
         </Card.Body>
       </Card>
 
-      {/* Mostrar Pedidos encontrada */}
+      {/* Mostrar Pedido encontrado */}
       {currentQuote && (
         <Card>
           <Card.Header className="d-flex justify-content-between align-items-center">
-            <h5>Pedidos #{currentQuote.id}</h5>
+            <h5>Pedido #{currentQuote.id}</h5>
             <div className="d-flex align-items-center gap-2">
               <Badge bg={getStatusVariant(currentQuote.status || "CREADA")}>
                 {statusOptions.find(s => s.value === currentQuote.status)?.label || currentQuote.status}
               </Badge>
+              {/* ✅ Botón de imprimir */}
+              <Button
+                variant="info"
+                size="sm"
+                onClick={handlePrint}
+              >
+                <i className="bi bi-printer"></i> Imprimir Orden
+              </Button>
               <Button
                 variant="warning"
                 size="sm"
@@ -1076,6 +1107,22 @@ export default function QuoteAdmin() {
           </Button>
         </Modal.Footer>
       </Modal>
+
+      {/* ✅ Componente oculto para impresión */}
+      <div style={{ display: 'none' }}>
+        <div ref={printRef}>
+          {currentQuote && (
+            <PrintableQuote
+              quote={currentQuote}
+              clients={clients}
+              products={products}
+              materials={materials}
+              services={services}
+              qrInfo={qrInfo}
+            />
+          )}
+        </div>
+      </div>
     </div>
   );
 }
