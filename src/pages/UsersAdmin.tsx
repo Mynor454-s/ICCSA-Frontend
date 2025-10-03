@@ -64,10 +64,6 @@ export default function Users() {
                 <i className="bi bi-arrow-left"></i> Volver
               </Link>
             </div>
-            <h2 className="mb-4">Gestión de Materiales</h2>
-            <Button variant="primary" onClick={handleCreate} className="mb-3">
-              <i className="bi bi-plus-circle me-2"></i>Agregar Material
-            </Button>
       <div className="d-flex justify-content-between align-items-center mb-3">
         <h4>Administrar Usuarios</h4>
         <Button onClick={handleCreate}>+ Nuevo Usuario</Button>

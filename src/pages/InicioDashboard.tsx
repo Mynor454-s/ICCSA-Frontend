@@ -9,6 +9,7 @@ export default function InicioDashboard() {
     { path: "/dashboard/servicios", label: "Servicios", icon: "bi-gear", color: "warning" },
     { path: "/dashboard/productos", label: "Productos", icon: "bi-box", color: "secondary" },
     { path: "/dashboard/cotizaciones", label: "Pedidos", icon: "bi-file-earmark-text", color: "dark" },
+    { path: "/dashboard/payments-admin", label: "Pagos", icon: "bi-credit-card", color: "danger" }, // ✅ Verificar este panel
   ];
 
   return (
@@ -18,7 +19,7 @@ export default function InicioDashboard() {
         {panels.map((panel, idx) => (
           <div className="col-md-4 mb-4" key={idx}>
             <Link to={panel.path} style={{ textDecoration: "none" }}>
-              <Card className={`text-white bg-${panel.color} shadow-sm`} style={{ cursor: "pointer" }}>
+              <Card className={`text-white bg-${panel.color} shadow-sm hover-opacity`} style={{ cursor: "pointer" }}>
                 <Card.Body className="d-flex align-items-center justify-content-between">
                   <div>
                     <Card.Title>{panel.label}</Card.Title>

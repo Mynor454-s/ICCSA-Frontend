@@ -1,5 +1,7 @@
 import { useAuth } from "../auth/AuthProvider";
 import { Outlet } from "react-router-dom";
+import { Col, Card } from "react-bootstrap";
+import { Link } from "react-router-dom";
 
 export default function Dashboard() {
   const { user, logout } = useAuth();
@@ -55,6 +57,8 @@ export default function Dashboard() {
       {/* Contenido principal */}
       <main className="flex-grow-1 p-4 bg-light overflow-auto">
         <Outlet />
+
+
       </main>
     </div>
   );

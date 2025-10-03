@@ -9,6 +9,7 @@ import MaterialsAdmin from "../pages/MaterialsAdmin";
 import ServicesAdmin from "../pages/ServicesAdmin";
 import ProductsAdmin from "../pages/ProductsAdmin";
 import QuoteAdmin from "../pages/QuoteAdmin";
+import PaymentsAdmin from "../pages/PaymentsAdmin"; // ✅ Asegurar esta importación
 
 export default function AppRouter() {
   return (
@@ -24,7 +25,6 @@ export default function AppRouter() {
             </PrivateRoute>
           }
         >
-          {/* Aquí se carga el panel principal */}
           <Route index element={<InicioDashboard />} />
           <Route path="users" element={<UsersAdmin />} />
           <Route path="clientes" element={<Clients />} />
@@ -32,10 +32,9 @@ export default function AppRouter() {
           <Route path="servicios" element={<ServicesAdmin />} />
           <Route path="productos" element={<ProductsAdmin />} />
           <Route path="cotizaciones" element={<QuoteAdmin />} />
-          {/* más rutas hijas aquí */}
+          <Route path="payments-admin" element={<PaymentsAdmin />} /> {/* ✅ Verificar esta ruta */}
         </Route>
 
-        {/* Redirección por defecto */}
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </BrowserRouter>
