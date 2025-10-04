@@ -3,6 +3,8 @@ import { getServices, createService, updateService, deleteService } from "../api
 import type { Service } from "../api/services.js";
 import { Button, Modal, Form, Table } from "react-bootstrap";
 import { Link } from "react-router-dom";
+import PrintableList from "../components/PrintableList";
+import { usePrintableList } from "../hooks/usePrintableList";
 
 export default function ServicesAdmin() {
   const [services, setServices] = useState<Service[]>([]);
@@ -81,6 +83,21 @@ export default function ServicesAdmin() {
     }
   };
 
+  // ✅ Hook para impresión
+  const { printRef, handlePrint } = usePrintableList("Listado_Servicios");
+
+  // ✅ Configuración de columnas para servicios
+  const printColumns = [
+    { key: 'name', label: 'Nombre del Servicio', align: 'left' as const },
+    { key: 'description', label: 'Descripción', align: 'left' as const },
+    { 
+      key: 'price', 
+      label: 'Precio', 
+      align: 'right' as const,
+      format: (value: number | string) => `Q${Number(value).toFixed(2)}`
+    }
+  ];
+
   return (
     <div>
       {/* Botón volver */}
@@ -92,6 +109,16 @@ export default function ServicesAdmin() {
       <h2 className="mb-4">Gestión de Servicios</h2>
       <Button variant="primary" onClick={handleAdd} className="mb-3">
         <i className="bi bi-plus-circle me-2"></i>Agregar Servicio
+      </Button>
+
+      {/* ✅ Botón de impresión */}
+      <Button 
+        variant="info" 
+        onClick={handlePrint}
+        disabled={services.length === 0}
+        className="mb-3"
+      >
+        <i className="bi bi-printer me-2"></i>Imprimir Listado
       </Button>
 
       {/* Tabla de servicios */}
@@ -191,6 +218,18 @@ export default function ServicesAdmin() {
           </Button>
         </Modal.Footer>
       </Modal>
+
+      {/* ✅ Componente de impresión */}
+      <div style={{ display: 'none' }}>
+        <div ref={printRef}>
+          <PrintableList
+            title="Listado de Servicios"
+            data={services}
+            columns={printColumns}
+            showCounter={true}
+          />
+        </div>
+      </div>
     </div>
   );
 }

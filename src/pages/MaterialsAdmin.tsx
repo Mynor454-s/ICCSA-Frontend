@@ -3,6 +3,8 @@ import { getMaterials, createMaterial, updateMaterial, deleteMaterial } from "..
 import type { Material } from "../api/material.js";
 import { Button, Modal, Form, Table } from "react-bootstrap";
 import { Link } from "react-router-dom";
+import PrintableList from "../components/PrintableList";
+import { usePrintableList } from "../hooks/usePrintableList";
 
 export default function MaterialsAdmin() {
   const [materials, setMaterials] = useState<Material[]>([]);
@@ -13,6 +15,21 @@ export default function MaterialsAdmin() {
     unit: "",
     unitCost: 0
   });
+
+  // ✅ Hook personalizado para impresión
+  const { printRef, handlePrint } = usePrintableList("Listado_Materiales");
+
+  // ✅ Configuración de columnas para la tabla imprimible
+  const printColumns = [
+    { key: 'name', label: 'Nombre del Material', align: 'left' as const },
+    { key: 'unit', label: 'Unidad de Medida', align: 'center' as const },
+    { 
+      key: 'unitCost', 
+      label: 'Costo Unitario', 
+      align: 'right' as const,
+      format: (value: number | string) => `Q${Number(value).toFixed(2)}`
+    }
+  ];
 
   // Cargar materiales
   const loadMaterials = async () => {
@@ -89,10 +106,38 @@ export default function MaterialsAdmin() {
           <i className="bi bi-arrow-left"></i> Volver
         </Link>
       </div>
+      
       <h2 className="mb-4">Gestión de Materiales</h2>
-      <Button variant="primary" onClick={handleAdd} className="mb-3">
-        <i className="bi bi-plus-circle me-2"></i>Agregar Material
-      </Button>
+      
+      {/* ✅ Botones de acción */}
+      <div className="mb-3 d-flex gap-2 flex-wrap">
+        <Button variant="primary" onClick={handleAdd}>
+          <i className="bi bi-plus-circle me-2"></i>Agregar Material
+        </Button>
+        
+        <Button 
+          variant="info" 
+          onClick={handlePrint}
+          disabled={materials.length === 0}
+          title={materials.length === 0 ? "No hay materiales para imprimir" : "Imprimir listado de materiales"}
+        >
+          <i className="bi bi-printer me-2"></i>Imprimir Listado
+        </Button>
+      </div>
+
+      {/* ✅ Información resumen - Solo cantidad de materiales */}
+      {materials.length > 0 && (
+        <div className="mb-3 p-3 bg-light rounded">
+          <div className="row">
+            <div className="col-12 text-center">
+              <small className="text-muted">
+                <i className="bi bi-box-seam"></i> 
+                <strong> Total de materiales registrados:</strong> {materials.length}
+              </small>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Tabla de materiales */}
       <Table striped bordered hover responsive>
@@ -118,14 +163,14 @@ export default function MaterialsAdmin() {
                     className="me-2"
                     onClick={() => handleEdit(m)}
                   >
-                    Editar
+                    <i className="bi bi-pencil"></i> Editar
                   </Button>
                   <Button
                     variant="danger"
                     size="sm"
                     onClick={() => handleDelete(m.id!)}
                   >
-                    Eliminar
+                    <i className="bi bi-trash"></i> Eliminar
                   </Button>
                 </td>
               </tr>
@@ -133,7 +178,11 @@ export default function MaterialsAdmin() {
           ) : (
             <tr>
               <td colSpan={4} className="text-center">
-                No hay materiales registrados
+                <div className="py-4">
+                  <i className="bi bi-box-seam text-muted" style={{ fontSize: '2rem' }}></i>
+                  <p className="text-muted mt-2 mb-0">No hay materiales registrados</p>
+                  <small className="text-muted">Haga clic en "Agregar Material" para comenzar</small>
+                </div>
               </td>
             </tr>
           )}
@@ -143,32 +192,46 @@ export default function MaterialsAdmin() {
       {/* Modal para agregar/editar */}
       <Modal show={showModal} onHide={() => setShowModal(false)}>
         <Modal.Header closeButton>
-          <Modal.Title>{editingMaterial ? "Editar Material" : "Agregar Material"}</Modal.Title>
+          <Modal.Title>
+            <i className={`bi ${editingMaterial ? 'bi-pencil' : 'bi-plus-circle'} me-2`}></i>
+            {editingMaterial ? "Editar Material" : "Agregar Material"}
+          </Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form>
             <Form.Group className="mb-3">
-              <Form.Label>Nombre</Form.Label>
+              <Form.Label>
+                <i className="bi bi-tag"></i> Nombre *
+              </Form.Label>
               <Form.Control
                 type="text"
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
                 placeholder="Nombre del material"
+                required
               />
             </Form.Group>
             <Form.Group className="mb-3">
-              <Form.Label>Unidad</Form.Label>
+              <Form.Label>
+                <i className="bi bi-rulers"></i> Unidad de Medida *
+              </Form.Label>
               <Form.Control
                 type="text"
                 name="unit"
                 value={formData.unit}
                 onChange={handleChange}
-                placeholder="hoja, kg, litro, etc."
+                placeholder="Ej: kg, litros, hojas, metros"
+                required
               />
+              <Form.Text className="text-muted">
+                Especifique la unidad de medida (kg, litros, hojas, metros, etc.)
+              </Form.Text>
             </Form.Group>
             <Form.Group className="mb-3">
-              <Form.Label>Costo Unitario</Form.Label>
+              <Form.Label>
+                <i className="bi bi-currency-dollar"></i> Costo Unitario *
+              </Form.Label>
               <Form.Control
                 type="number"
                 step="0.01"
@@ -177,19 +240,40 @@ export default function MaterialsAdmin() {
                 value={formData.unitCost}
                 onChange={handleChange}
                 placeholder="0.00"
+                required
               />
+              <Form.Text className="text-muted">
+                Costo por unidad en Quetzales (Q)
+              </Form.Text>
             </Form.Group>
           </Form>
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setShowModal(false)}>
-            Cancelar
+            <i className="bi bi-x"></i> Cancelar
           </Button>
-          <Button variant="primary" onClick={handleSave}>
-            Guardar
+          <Button 
+            variant="primary" 
+            onClick={handleSave}
+            disabled={!formData.name || !formData.unit || !formData.unitCost}
+          >
+            <i className={`bi ${editingMaterial ? 'bi-check' : 'bi-save'}`}></i>
+            {editingMaterial ? ' Actualizar' : ' Guardar'}
           </Button>
         </Modal.Footer>
       </Modal>
+
+      {/* ✅ Componente oculto para impresión */}
+      <div style={{ display: 'none' }}>
+        <div ref={printRef}>
+          <PrintableList
+            title="Listado de Materiales"
+            data={materials}
+            columns={printColumns}
+            showCounter={true}
+          />
+        </div>
+      </div>
     </div>
   );
 }

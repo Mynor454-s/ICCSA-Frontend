@@ -117,7 +117,6 @@ export default function QuoteAdmin() {
     { value: "FINALIZADA", label: "Finalizada", variant: "info" },
     { value: "PAGADA", label: "Pagada", variant: "success" },
     { value: "ENTREGADA", label: "Entregada", variant: "dark" },
-    { value: "CANCELADA", label: "Cancelada", variant: "danger" }, // ✅ AGREGAR CANCELADA
   ];
 
   // Get status variant for badge
@@ -821,15 +820,6 @@ export default function QuoteAdmin() {
                   <i className="bi bi-arrow-repeat"></i>
                 </Button>
 
-                <Button
-                  variant="danger"
-                  size="sm"
-                  onClick={() => setShowCancelModal(true)}
-                  disabled={currentQuote.status === 'CANCELADA'}
-                  title="Cancelar pedido"
-                >
-                  <i className="bi bi-x-circle"></i>
-                </Button>
               </div>
             </div>
           </Card.Header>
